@@ -28,22 +28,19 @@ public class CommentService {
 
         // Check if the user exists in the database
         Optional<User> existingUser = userRepository.findByCommentTo(commentTo);
+        User fromUser;
 
-        User fromUser = new User();
-        fromUser.setCommentFrom(commentFrom);
-        fromUser.setCommentTo(commentTo);
+        if (existingUser.isPresent()) {
+            // If the user exists, update the existing user
+            fromUser = existingUser.get();
+        } else {
+            // If the user does not exist, create new users
+            fromUser = new User();
+            fromUser.setCommentFrom(commentFrom);
+            fromUser.setCommentTo(commentTo);
+            userRepository.save(fromUser);
+        }
 
-        User toUser = existingUser.orElseGet(() -> {
-            // If the user does not exist, create a new user
-            User newUser = new User();
-            newUser.setCommentFrom(commentFrom);
-            newUser.setCommentTo(commentTo);
-            userRepository.save(newUser);
-            return newUser;
-        });
-
-        // Save the fromUser (commenting user) regardless
-        userRepository.save(fromUser);
         
         // Create a new comment
         Comment comment = new Comment();
@@ -63,7 +60,7 @@ public class CommentService {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return commentRepository.findByPostedByUser(commentTo);
+            return commentRepository.findByPostedByUser(user);
         } else {
             // Handle user not found
             return Collections.emptyList();

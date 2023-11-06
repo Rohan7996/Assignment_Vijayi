@@ -1,6 +1,5 @@
 package com.johnson.app.rest.model;
 import javax.persistence.*;
-import java.math.BigInteger;
 
 @Entity
 @Table(name = "app_user")
